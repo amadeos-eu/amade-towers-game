@@ -11,6 +11,7 @@ import eu.amadeos.games.towers.bootstrap.TowersModule;
 import eu.amadeos.games.towers.domain.Field;
 import eu.amadeos.games.towers.domain.Game;
 import eu.amadeos.games.towers.domain.Level;
+import eu.amadeos.games.towers.domain.Mode;
 import eu.amadeos.games.towers.domain.Rules;
 import eu.amadeos.games.towers.domain.Tower;
 import eu.amadeos.games.towers.domain.Wave;
@@ -108,7 +109,7 @@ class TowersGameTest {
         Rules rules = game.rules();
         Level level = Level.read(1, TiledMap.load(Level.class, Level.FOLDER + Level.FILES.getFirst()),
                 new Rules.Plan(1, gold, lives, 0, List.of(new Wave(List.of(new Wave.Group(rules.unit(unit), count, 0.5))))));
-        return new Game(level, rules);
+        return new Game(level, rules, Mode.OPEN);
     }
 
     @Test
@@ -125,6 +126,22 @@ class TowersGameTest {
         assertInstanceOf(TowersGame.PauseScene.class, game.top());
         tap(KeyEvent.VK_ESCAPE);
         assertInstanceOf(TowersGame.ChoiceScene.class, game.top());
+    }
+
+    @Test
+    void battlesAreOnTheRoadUntilTheChoiceSwitchesToOpenGround() {
+        click();
+        assertInstanceOf(TowersGame.ChoiceScene.class, game.top());
+        tap(KeyEvent.VK_ENTER);
+        TowersGame.PlayScene road = assertInstanceOf(TowersGame.PlayScene.class, game.top());
+        assertEquals(Mode.ROAD, road.game().mode());
+        tap(KeyEvent.VK_ESCAPE);
+        tap(KeyEvent.VK_ESCAPE);
+        tap(KeyEvent.VK_M);
+        tap(KeyEvent.VK_ENTER);
+        TowersGame.PlayScene open = assertInstanceOf(TowersGame.PlayScene.class, game.top());
+        assertEquals(Mode.OPEN, open.game().mode());
+        assertEquals(Mode.OPEN, new TowersSettings(dir.resolve("towers.properties")).mode(), "remembered");
     }
 
     // --8<-- [start:test-build]

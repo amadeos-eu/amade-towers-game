@@ -1,10 +1,12 @@
 package eu.amadeos.games.towers.domain;
 
+import eu.amadeos.gameengine.data.TextData;
 import eu.amadeos.gameengine.path.FlowField;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameTest {
@@ -227,4 +229,41 @@ class GameTest {
         assertFalse(flow.reaches(3, 1), "nobody walks on a rock");
         assertTrue(flow.distance(0, 1) > 80, "around it: more than eight tiles straight");
     }
+
+    // --8<-- [start:test-road]
+    @Test
+    void onTheRoadUnitsKeepToItAndTowersStandBesideIt() {
+        String[] rows = {
+                "..........",
+                "L###....CC",
+                "...######.",
+        };
+        Rules rules = Maps.rules(ONE_ORC);
+        Game road = new Game(Maps.of(rules, rows), rules, Mode.ROAD);
+        TowerType archer = road.rules().tower("archer");
+        assertEquals(Game.Placement.NOT_HERE, road.build(2, 1, archer), "not on the road");
+        assertFalse(road.flow().reaches(5, 1), "the grass is not walked on");
+        assertEquals(30 + 10 + 50 + 10, road.flow().distance(0, 1), "along the road, round its corners");
+        assertEquals(Game.Placement.OK, road.build(5, 1, archer), "beside it");
+        assertEquals(Game.Placement.OK, road.build(5, 0, archer), "a tower beside the road never blocks it");
+
+        Game open = new Game(Maps.of(rules, rows), rules, Mode.OPEN);
+        assertEquals(80, open.flow().distance(0, 1), "on open ground the road is grass: straight on");
+        assertEquals(Game.Placement.OK, open.build(2, 1, open.rules().tower("archer")));
+    }
+
+    @Test
+    void aMapWithoutARoadIsPlayedOnOpenGround() {
+        Rules rules = Maps.rules(ONE_ORC);
+        Game game = new Game(Maps.of(rules, "L.......CC"), rules, Mode.ROAD);
+        assertEquals(Mode.OPEN, game.mode());
+    }
+
+    @Test
+    void aRoadThatDoesNotReachTheCastleIsAnError() {
+        TextData.DataException error = assertThrows(TextData.DataException.class,
+                () -> Maps.of(Maps.rules(ONE_ORC), "L###......CC"));
+        assertEquals("test.tmx: the road does not lead from the lair at (0, 0) to the castle", error.getMessage());
+    }
+    // --8<-- [end:test-road]
 }

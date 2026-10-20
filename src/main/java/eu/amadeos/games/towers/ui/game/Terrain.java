@@ -7,6 +7,7 @@ import eu.amadeos.games.towers.domain.Field;
 import eu.amadeos.games.towers.domain.Game;
 import eu.amadeos.games.towers.domain.Ground;
 import eu.amadeos.games.towers.domain.Level;
+import eu.amadeos.games.towers.domain.Mode;
 import eu.amadeos.games.towers.domain.Trail;
 
 import java.awt.Graphics2D;
@@ -22,12 +23,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * The ground of a level: grass, water, rocks, the shadows of the trees, the lair, the castle and the trail.
+ * The ground of a level: grass, water, rocks, the shadows of the trees, the lair, the castle, and the road
+ * or, on open ground, the trail.
  * All of it lies still, so it is drawn once into sprites, in squares of {@value #CHUNK} × {@value #CHUNK}
  * tiles, and in each frame only copied. The squares are {@link Sprite#opaque() opaque}: they cover
  * everything below them, and the copy needs no blending.
  *
- * <p>Only the trail changes, when a tower makes the enemies go another way. Then the squares it crosses,
+ * <p>The road never changes. Only the trail on open ground does, when a tower makes the enemies go another way. Then the squares it crosses,
  * before or after, are drawn again, but no more than {@value #REDRAWS} in a frame: drawing one costs a few
  * milliseconds, and a new way through the whole map would cost a frame or two all at once. Until a square's
  * turn comes, its old picture shows.
@@ -39,6 +41,7 @@ final class Terrain {
     private static final int SIZE = CHUNK * Field.TILE;
 
     private final Level level;
+    private final Mode mode;
     private final BufferedImage grass;
     private final Chunk[] chunks;
     private final int across;
@@ -59,8 +62,9 @@ final class Terrain {
         }
     }
 
-    Terrain(Level level) {
+    Terrain(Level level, Mode mode) {
         this.level = level;
+        this.mode = mode;
         this.grass = Art.grass(level.width() * Field.TILE, level.height() * Field.TILE, level.number());
         this.across = (level.width() + CHUNK - 1) / CHUNK;
         int down = (level.height() + CHUNK - 1) / CHUNK;
@@ -172,6 +176,38 @@ final class Terrain {
             }
         }
         if (!pond.isEmpty()) Art.water(g, pond, ripples.stream().mapToDouble(Double::doubleValue).toArray());
+        if (mode == Mode.ROAD) {
+            Art.road(g, road(fromCol, fromRow, toCol, toRow));
+        } else {
+            trail(g, all, fromCol, fromRow, toCol, toRow);
+        }
+        for (int row = fromRow; row <= toRow; row++) {
+            for (int col = fromCol; col <= toCol; col++) {
+                if (!level.contains(col, row)) continue;
+                double x = col * Field.TILE;
+                double y = row * Field.TILE;
+                Random random = new Random(col * 7919L + row * 104729L + level.number());
+                switch (level.ground(col, row)) {
+                    case ROCK -> Art.rock(g, x, y, random);
+                    case TREE -> Art.treeShadow(g, x, y, false);
+                    case PINE -> Art.treeShadow(g, x, y, true);
+                    case ROAD -> Art.pebbles(g, x + 10, y + 10, random);
+                    default -> {
+                        if (mode == Mode.OPEN && all[row * level.width() + col] != 0) {
+                            Art.pebbles(g, x + 10, y + 10, random);
+                        }
+                    }
+                }
+            }
+        }
+        for (Cell lair : level.lairs()) Art.lair(g, lair.col() * Field.TILE, (lair.row() + 0.5) * Field.TILE);
+        Level.Box castle = level.castleBox();
+        Art.castle(g, castle.x() + 3, castle.y() + 3, castle.width() - 6, castle.height() - 6);
+    }
+    // --8<-- [end:draw]
+
+    /** The trail on open ground: a line from tile to tile along the way, and out of each lair. */
+    private void trail(Graphics2D g, int[] all, int fromCol, int fromRow, int toCol, int toRow) {
         Path2D way = new Path2D.Double();
         for (int row = fromRow; row <= toRow; row++) {
             for (int col = fromCol; col <= toCol; col++) {
@@ -196,27 +232,36 @@ final class Terrain {
             way.lineTo(x + dx * Field.TILE, y + dy * Field.TILE);
         }
         Art.trail(g, way);
+    }
+
+    /**
+     * The road's tiles, with the lairs and the castle it leads from and to; where it meets the edge of the
+     * map it goes on beyond it, so that it does not end in a rounded tip at the edge.
+     */
+    private Area road(int fromCol, int fromRow, int toCol, int toRow) {
+        Area road = new Area();
+        Rectangle2D.Double tile = new Rectangle2D.Double();
         for (int row = fromRow; row <= toRow; row++) {
             for (int col = fromCol; col <= toCol; col++) {
                 if (!level.contains(col, row)) continue;
+                Ground ground = level.ground(col, row);
+                if (ground != Ground.ROAD && ground != Ground.LAIR && ground != Ground.CASTLE) continue;
                 double x = col * Field.TILE;
                 double y = row * Field.TILE;
-                Random random = new Random(col * 7919L + row * 104729L + level.number());
-                switch (level.ground(col, row)) {
-                    case ROCK -> Art.rock(g, x, y, random);
-                    case TREE -> Art.treeShadow(g, x, y, false);
-                    case PINE -> Art.treeShadow(g, x, y, true);
-                    default -> {
-                        if (all[row * level.width() + col] != 0) Art.pebbles(g, x + 10, y + 10, random);
-                    }
+                double w = Field.TILE;
+                double h = Field.TILE;
+                if (ground != Ground.CASTLE) {
+                    if (col == 0) { x -= Field.TILE; w += Field.TILE; }
+                    if (col == level.width() - 1) w += Field.TILE;
+                    if (row == 0) { y -= Field.TILE; h += Field.TILE; }
+                    if (row == level.height() - 1) h += Field.TILE;
                 }
+                tile.setRect(x, y, w, h);
+                road.add(new Area(tile));
             }
         }
-        for (Cell lair : level.lairs()) Art.lair(g, lair.col() * Field.TILE, (lair.row() + 0.5) * Field.TILE);
-        Level.Box castle = level.castleBox();
-        Art.castle(g, castle.x() + 3, castle.y() + 3, castle.width() - 6, castle.height() - 6);
+        return road;
     }
-    // --8<-- [end:draw]
 
     /** The number of squares across, for the tests. */
     int across() {

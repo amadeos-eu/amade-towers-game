@@ -1,6 +1,7 @@
 package eu.amadeos.games.towers.repository;
 
 import eu.amadeos.gameengine.swing.RenderMode;
+import eu.amadeos.games.towers.domain.Mode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,11 +23,14 @@ class TowersSettingsTest {
         TowersSettings settings = new TowersSettings(dir.resolve("towers.properties"));
         assertEquals(RenderMode.DIRECT, settings.renderMode());
         assertTrue(settings.sound());
+        assertEquals(Mode.ROAD, settings.mode(), "on the road by default");
         settings.setRenderMode(RenderMode.PIXEL);
         settings.setSound(false);
+        settings.setMode(Mode.OPEN);
         TowersSettings again = new TowersSettings(dir.resolve("towers.properties"));
         assertEquals(RenderMode.PIXEL, again.renderMode());
         assertFalse(again.sound());
+        assertEquals(Mode.OPEN, again.mode());
     }
 
     @Test

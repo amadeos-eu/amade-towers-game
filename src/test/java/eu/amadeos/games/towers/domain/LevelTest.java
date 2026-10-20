@@ -13,22 +13,28 @@ class LevelTest {
     void everyMapHasItsLairsCastleAndAWay() {
         for (int number = 1; number <= Level.FILES.size(); number++) {
             Level level = Level.load(number, rules);
-            Game game = new Game(level, rules);
             assertTrue(level.castle().size() >= 4, "map " + number + ": a castle of a few tiles");
-            for (Cell lair : level.lairs()) {
-                assertTrue(game.flow().reaches(lair), "map " + number + ": a way from " + lair);
+            assertTrue(level.hasRoad(), "map " + number + ": a road");
+            for (Mode mode : Mode.values()) {
+                Game game = new Game(level, rules, mode);
+                assertEquals(mode, game.mode());
+                for (Cell lair : level.lairs()) {
+                    assertTrue(game.flow().reaches(lair), "map " + number + ", " + mode + ": a way from " + lair);
+                }
             }
         }
     }
 
     // --8<-- [start:test-won]
     @Test
-    void aSimplePlayerWinsEveryLevel() {
-        for (int number = 1; number <= Level.FILES.size(); number++) {
-            Game game = new Defender(new Game(Level.load(number, rules), rules)).play();
-            System.out.printf("level %d: %s with %d of %d lives, %d towers, %.0f s%n", number, game.phase(),
-                    game.lives(), game.level().plan().lives(), game.towers().size(), game.time());
-            assertEquals(Game.Phase.WON, game.phase(), "level " + number + ": " + game.lives() + " lives");
+    void aSimplePlayerWinsEveryLevelOnTheRoadAndOnOpenGround() {
+        for (Mode mode : Mode.values()) {
+            for (int number = 1; number <= Level.FILES.size(); number++) {
+                Game game = new Defender(new Game(Level.load(number, rules), rules, mode)).play();
+                System.out.printf("%s level %d: %s with %d of %d lives, %d towers, %.0f s%n", mode, number,
+                        game.phase(), game.lives(), game.level().plan().lives(), game.towers().size(), game.time());
+                assertEquals(Game.Phase.WON, game.phase(), mode + " level " + number + ": " + game.lives() + " lives");
+            }
         }
     }
     // --8<-- [end:test-won]

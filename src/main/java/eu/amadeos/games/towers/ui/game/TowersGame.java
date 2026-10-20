@@ -17,6 +17,7 @@ import eu.amadeos.games.towers.domain.Event;
 import eu.amadeos.games.towers.domain.Field;
 import eu.amadeos.games.towers.domain.Game;
 import eu.amadeos.games.towers.domain.Level;
+import eu.amadeos.games.towers.domain.Mode;
 import eu.amadeos.games.towers.domain.Rules;
 import eu.amadeos.games.towers.domain.Tower;
 import eu.amadeos.games.towers.domain.TowerType;
@@ -37,7 +38,7 @@ import java.util.Map;
  * game loop thread, except the {@link Arena} methods, which only post commands to it.
  */
 public final class TowersGame implements Arena {
-    enum Action { LEFT, RIGHT, UP, DOWN, NEXT, FAST, FLOW, PAUSE, BACK, OK, ONE, TWO, THREE }
+    enum Action { LEFT, RIGHT, UP, DOWN, NEXT, FAST, FLOW, MODE, PAUSE, BACK, OK, ONE, TWO, THREE }
 
     static final int UPDATES_PER_SECOND = 120;
     static final int FRAMES_PER_SECOND = 60;
@@ -49,6 +50,8 @@ public final class TowersGame implements Arena {
     /** How long a battle goes on behind its end before the result shows. */
     static final double END_SECONDS = 1.5;
     static final double TITLE_SPEED = 12;
+    /** The baseline of the line on the choice screen that says how battles are fought. */
+    static final double MODE_LINE = 296;
     static final double MENU_WIDTH = 132;
     static final double MENU_ROW = 26;
     static final double MENU_TITLE = 19;
@@ -70,6 +73,7 @@ public final class TowersGame implements Arena {
     private final Mouse mouse;
     private final Messages msg;
     private final Progress progress;
+    private final TowersSettings settings;
     private final Mixer mixer;
     private final Rules rules;
     private final TowersPainter painter = new TowersPainter();
@@ -78,10 +82,12 @@ public final class TowersGame implements Arena {
     private final SceneStack scenes = new SceneStack();
     private final Controls<Action> controls;
     private final List<Level> levels = new ArrayList<>();
-    /** The grass of a level is made once: it takes a moment. */
-    private final Map<Integer, Terrain> terrains = new HashMap<>();
+    /** The ground of a level, on the road and on open ground, is made once: it takes a moment. */
+    private final Map<String, Terrain> terrains = new HashMap<>();
     private final OverlayMenu.Style menuStyle;
     private int chosen = 1;
+    /** On the road or on open ground, as the choice screen last set it. */
+    private Mode mode;
     private GameLoop loop;
 
     @Inject
@@ -91,6 +97,8 @@ public final class TowersGame implements Arena {
         this.mouse = mouse;
         this.msg = msg;
         this.progress = progress;
+        this.settings = settings;
+        this.mode = settings.mode();
         this.mixer = mixer;
         this.hud = new Hud(msg);
         this.effects = new Effects(mixer);
@@ -106,6 +114,7 @@ public final class TowersGame implements Arena {
                 .bind(Action.NEXT, settings.keys("next", KeyEvent.VK_N))
                 .bind(Action.FAST, settings.keys("fast", KeyEvent.VK_F))
                 .bind(Action.FLOW, settings.keys("flow", KeyEvent.VK_F3))
+                .bind(Action.MODE, settings.keys("mode", KeyEvent.VK_M))
                 .bind(Action.PAUSE, settings.keys("pause", KeyEvent.VK_P))
                 .bind(Action.BACK, KeyEvent.VK_ESCAPE)
                 .bind(Action.OK, KeyEvent.VK_ENTER, KeyEvent.VK_SPACE)
@@ -197,7 +206,7 @@ public final class TowersGame implements Arena {
 
     /** Plays battlefield {@code number} at once, without the title and the choice. */
     PlayScene play(int number) {
-        return play(new Game(levels.get(number - 1), rules));
+        return play(new Game(levels.get(number - 1), rules, mode));
     }
 
     /** Plays a battle prepared by a test, on one of the battlefields or a map of its own. */
@@ -209,8 +218,10 @@ public final class TowersGame implements Arena {
 
     // ---- the scenes ------------------------------------------------------------------------------
 
-    private Terrain terrain(Level level) {
-        return terrains.computeIfAbsent(level.number(), n -> new Terrain(level));
+    /** The ground of a battle: its level, with the road or the trail. */
+    private Terrain terrain(Game game) {
+        Level level = game.level();
+        return terrains.computeIfAbsent(level.number() + " " + game.mode(), key -> new Terrain(level, game.mode()));
     }
 
     /** The view of a battle, below the bar. */
@@ -228,7 +239,7 @@ public final class TowersGame implements Arena {
     final class TitleScene implements Scene {
         private Game demo;
         private final Camera camera = wideCamera(levels.getFirst());
-        private final Terrain terrain = terrain(levels.getFirst());
+        private Terrain terrain;
         private double time;
         private double spent;
 
@@ -238,7 +249,8 @@ public final class TowersGame implements Arena {
         }
 
         private void restart() {
-            demo = new Game(levels.getFirst(), rules, 7);
+            demo = new Game(levels.getFirst(), rules, mode, 7);
+            terrain = terrain(demo);
             demo.callWave();
             terrain.update(demo);
             camera.jumpTo(camera.worldWidth() / 2, camera.worldHeight() / 2);
@@ -289,7 +301,7 @@ public final class TowersGame implements Arena {
     // --8<-- [start:choice]
     /** Three cards, one for each battlefield; one opens when the one before it is won. */
     final class ChoiceScene implements Scene {
-        private final Map<Integer, Game> fields = new HashMap<>();
+        private final Map<String, Game> fields = new HashMap<>();
         private final Map<Integer, Camera> cameras = new HashMap<>();
         private double time;
 
@@ -313,7 +325,17 @@ public final class TowersGame implements Arena {
             if (mouse.wasMoved() && card > 0 && card <= open) chosen = card;
             if (chosen != before) effects.tick();
             boolean clicked = mouse.wasPressed(MouseEvent.BUTTON1) && card > 0 && card <= open;
+            if (controls.wasPressed(Action.MODE) || mouse.wasPressed(MouseEvent.BUTTON1) && onMode(mouse.y())) {
+                mode = mode == Mode.ROAD ? Mode.OPEN : Mode.ROAD;
+                settings.setMode(mode);
+                effects.tick();
+            }
             if (controls.wasPressed(Action.OK) || clicked) scenes.replace(new PlayScene(levels.get(chosen - 1)));
+        }
+
+        /** Whether a point's height is that of the line that says how battles are fought. */
+        boolean onMode(double y) {
+            return Math.abs(y - (MODE_LINE - 4)) <= 10;
         }
         // --8<-- [end:choice]
 
@@ -330,10 +352,10 @@ public final class TowersGame implements Arena {
         @Override
         public void render(Graphics2D g, double alpha) {
             Level level = levels.get(chosen - 1);
-            Game field = fields.computeIfAbsent(chosen, n -> new Game(level, rules));
+            Game field = fields.computeIfAbsent(chosen + " " + mode, key -> new Game(level, rules, mode));
             Camera camera = cameras.computeIfAbsent(chosen, n -> wideCamera(level));
             camera.jumpTo(camera.viewWidth() / 2 + time * TITLE_SPEED, camera.worldHeight() / 2);
-            Terrain terrain = terrain(level);
+            Terrain terrain = terrain(field);
             terrain.update(field);
             painter.paint(g, field, terrain, camera, effects, TowersPainter.Marks.NONE, alpha);
         }
@@ -347,7 +369,8 @@ public final class TowersGame implements Arena {
                 hud.card(g, Hud.cardX(i, levels.size()), Hud.CARD_TOP, number, number <= progress.open(),
                         number == chosen, progress);
             }
-            hud.text(g, msg.get("select.keys"), 320, 12, false, Hud.CHALK);
+            hud.text(g, msg.get(mode == Mode.ROAD ? "select.road" : "select.open"), MODE_LINE, 13, true, Hud.GOLD);
+            hud.text(g, msg.get("select.keys"), 330, 12, false, Hud.CHALK);
         }
 
         int chosen() {
@@ -382,14 +405,14 @@ public final class TowersGame implements Arena {
         private Progress.Record record;
 
         PlayScene(Level level) {
-            this(new Game(level, rules));
+            this(new Game(level, rules, mode));
         }
 
         PlayScene(Game battle) {
             game = battle;
             Level level = battle.level();
             camera = TowersGame.camera(level);
-            terrain = TowersGame.this.terrain(level);
+            terrain = TowersGame.this.terrain(battle);
             terrain.update(game);
             Level.Box castle = level.castleBox();
             camera.jumpTo(camera.worldWidth() / 2, castle.y() + castle.height() / 2);

@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import eu.amadeos.commons.config.AppDirectories;
 import eu.amadeos.commons.config.PropertiesFile;
 import eu.amadeos.gameengine.swing.RenderMode;
+import eu.amadeos.games.towers.domain.Mode;
 
 import javax.swing.KeyStroke;
 import java.nio.file.Path;
@@ -13,12 +14,13 @@ import java.util.Locale;
 import java.util.Properties;
 
 /**
- * The settings in {@code ~/.config/amadeos/towers/towers.properties}: the graphics mode, the sound, and the
- * keys. Keys are written as Java names them, several separated by spaces, e.g. {@code keys.next=N SPACE}.
+ * The settings in {@code ~/.config/amadeos/towers/towers.properties}: the graphics mode, the sound, whether
+ * battles are fought on the road or on open ground, and the keys. Keys are written as Java names them, several separated by spaces, e.g. {@code keys.next=N SPACE}.
  */
 public final class TowersSettings {
     private static final String GRAPHICS = "graphics";
     private static final String SOUND = "sound";
+    private static final String BATTLEFIELD = "battlefield";
 
     private final Path file;
 
@@ -45,6 +47,15 @@ public final class TowersSettings {
 
     public void setSound(boolean on) {
         set(SOUND, on ? "on" : "off");
+    }
+
+    /** On the road unless the file says {@code battlefield=open}. */
+    public Mode mode() {
+        return Mode.ofId(PropertiesFile.load(file).getProperty(BATTLEFIELD, ""));
+    }
+
+    public void setMode(Mode mode) {
+        set(BATTLEFIELD, mode.id());
     }
 
     private void set(String key, String value) {

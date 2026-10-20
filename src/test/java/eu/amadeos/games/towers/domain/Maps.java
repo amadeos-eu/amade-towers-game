@@ -10,7 +10,7 @@ import java.util.StringJoiner;
 
 /**
  * Small maps for tests, drawn as text and turned into the TMX that Tiled would save: {@code .} grass,
- * {@code T} a tree, {@code P} a pine, {@code R} a rock, {@code ~} water, {@code L} a lair, {@code C} the
+ * {@code #} road, {@code T} a tree, {@code P} a pine, {@code R} a rock, {@code ~} water, {@code L} a lair, {@code C} the
  * castle (its tiles, as one box). The plan is given as the lines of a level in {@code waves.txt}.
  */
 final class Maps {
@@ -36,6 +36,7 @@ final class Maps {
                     case 'P' -> "3";
                     case 'R' -> "4";
                     case '~' -> "5";
+                    case '#' -> "6";
                     default -> "1";
                 });
                 if (c == 'L') {
@@ -55,8 +56,8 @@ final class Maps {
         String tmx = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <map orientation="orthogonal" width="%d" height="%d" tilewidth="20" tileheight="20">
-                 <tileset firstgid="1" name="test" tilewidth="20" tileheight="20" tilecount="5" columns="5">
-                  <tile id="1" type="tree"/><tile id="2" type="pine"/><tile id="3" type="rock"/><tile id="4" type="water"/>
+                 <tileset firstgid="1" name="test" tilewidth="20" tileheight="20" tilecount="6" columns="6">
+                  <tile id="1" type="tree"/><tile id="2" type="pine"/><tile id="3" type="rock"/><tile id="4" type="water"/><tile id="5" type="road"/>
                  </tileset>
                  <layer name="ground" width="%d" height="%d"><data encoding="csv">%s</data></layer>
                  <objectgroup name="things">

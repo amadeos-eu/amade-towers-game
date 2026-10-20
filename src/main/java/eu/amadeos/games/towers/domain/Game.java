@@ -20,7 +20,7 @@ public final class Game {
     /** Whether a tower may stand on a tile. */
     public enum Placement {
         OK,
-        /** Not grass, or a tower is there. */
+        /** Not grass (the road is not grass either, but on open ground), or a tower is there. */
         NOT_HERE,
         /** A unit is on the tile. */
         OCCUPIED,
@@ -34,6 +34,7 @@ public final class Game {
 
     private final Level level;
     private final Rules rules;
+    private final Mode mode;
     private final Rules.Plan plan;
     private final SeededRandom random;
     private final Tower[] towerAt;
@@ -84,13 +85,19 @@ public final class Game {
         }
     }
 
+    /** A battle on the road, or on open ground where the map has no road. */
     public Game(Level level, Rules rules) {
-        this(level, rules, 1);
+        this(level, rules, Mode.ROAD);
     }
 
-    public Game(Level level, Rules rules, long seed) {
+    public Game(Level level, Rules rules, Mode mode) {
+        this(level, rules, mode, 1);
+    }
+
+    public Game(Level level, Rules rules, Mode mode, long seed) {
         this.level = level;
         this.rules = rules;
+        this.mode = level.hasRoad() ? mode : Mode.OPEN;
         this.plan = level.plan();
         this.random = new SeededRandom(seed);
         this.towerAt = new Tower[level.width() * level.height()];
@@ -102,9 +109,9 @@ public final class Game {
     // ---- the way --------------------------------------------------------------------------------
 
     // --8<-- [start:way]
-    /** Units walk where the ground lets them and no tower stands. */
-    private boolean open(int col, int row) {
-        return level.ground(col, row).walkable() && towerAt[row * level.width() + col] == null;
+    /** Units walk where the ground lets them, on the road or over open ground, and no tower stands. */
+    public boolean open(int col, int row) {
+        return level.ground(col, row).walkable(mode) && towerAt[row * level.width() + col] == null;
     }
 
     /** One search from the castle for all units, after every change of the map. */
@@ -138,7 +145,7 @@ public final class Game {
      * search, with the tile closed as if the tower stood there.
      */
     public Placement placement(int col, int row) {
-        if (!level.contains(col, row) || !level.ground(col, row).buildable() || tower(col, row) != null) {
+        if (!level.contains(col, row) || !level.ground(col, row).buildable(mode) || tower(col, row) != null) {
             return Placement.NOT_HERE;
         }
         Cell cell = new Cell(col, row);
@@ -475,6 +482,11 @@ public final class Game {
 
     public Phase phase() {
         return phase;
+    }
+
+    /** On the road, or on open ground. */
+    public Mode mode() {
+        return mode;
     }
 
     public int stars() {

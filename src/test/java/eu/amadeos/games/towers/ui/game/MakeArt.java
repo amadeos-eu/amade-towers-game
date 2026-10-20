@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,7 +13,7 @@ import java.util.Random;
 
 /**
  * Draws the files made from the game's own vector art, which are part of the repository: the tileset
- * picture that Tiled shows ({@code maps/tiles.png}: grass, tree, pine, rock, water) and the program icon,
+ * picture that Tiled shows ({@code maps/tiles.png}: grass, tree, pine, rock, water, road) and the program icon,
  * a cannon tower on grass, at 48 and 256 pixels. {@code ./gradlew art}, then for Windows:
  *
  * <pre>
@@ -32,9 +33,9 @@ public final class MakeArt {
         ImageIO.write(icon(256), "png", new File("build/icon-256.png"));
     }
 
-    /** Five tiles of 20 × 20 pixels in a row, as the ground of the maps counts them from 0. */
+    /** Six tiles of 20 × 20 pixels in a row, as the ground of the maps counts them from 0. */
     static BufferedImage tiles() {
-        BufferedImage image = new BufferedImage(100, 20, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(120, 20, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         BufferedImage grass = Art.grass(20, 20, 1);
@@ -43,6 +44,9 @@ public final class MakeArt {
         Art.pine(g, 50, 10, new Random(200));
         Art.rock(g, 60, 0, new Random(3));
         Art.water(g, new RoundRectangle2D.Double(80, 0, 20, 20, 0, 0), new double[]{80, 0});
+        g.setColor(Art.DIRT);
+        g.fill(new Rectangle2D.Double(100, 0, 20, 20));
+        Art.pebbles(g, 110, 10, new Random(4));
         g.dispose();
         return image;
     }

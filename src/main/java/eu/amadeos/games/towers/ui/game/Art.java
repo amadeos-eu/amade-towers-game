@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -35,6 +36,8 @@ final class Art {
     static final Color DIRT = new Color(0x9E7A4C);
     static final Color DIRT_EDGE = new Color(74, 58, 34, 120);
     static final Color DIRT_RIM = new Color(122, 94, 58, 170);
+    /** How round the road's corners are, in units. */
+    static final double ROAD_ROUNDING = 7;
 
     private Art() {
     }
@@ -352,6 +355,48 @@ final class Art {
         g.draw(way);
     }
     // --8<-- [end:trail]
+
+    // --8<-- [start:road]
+    /**
+     * The road over {@code tiles}, the union of its tiles' squares: with its corners rounded, a band of trodden
+     * grass along its edges, and the bare earth inside.
+     */
+    static void road(Graphics2D g, Area tiles) {
+        if (tiles.isEmpty()) return;
+        Area road = opened(closed(tiles, ROAD_ROUNDING), ROAD_ROUNDING);
+        g.setColor(DIRT_RIM);
+        g.fill(road);
+        g.setColor(DIRT);
+        g.fill(eroded(road, 2.5));
+        g.setColor(DIRT_EDGE);
+        g.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(road);
+    }
+
+    /** Rounds the inner corners of a shape: grown by {@code r} and shrunk again. */
+    private static Area closed(Area area, double r) {
+        return eroded(grown(area, r), r);
+    }
+
+    /** Rounds the outer corners: shrunk by {@code r} and grown again. */
+    private static Area opened(Area area, double r) {
+        return grown(eroded(area, r), r);
+    }
+
+    private static Area grown(Area area, double r) {
+        Area grown = new Area(area);
+        grown.add(new Area(new BasicStroke((float) (2 * r), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+                .createStrokedShape(area)));
+        return grown;
+    }
+
+    private static Area eroded(Area area, double r) {
+        Area eroded = new Area(area);
+        eroded.subtract(new Area(new BasicStroke((float) (2 * r), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+                .createStrokedShape(area)));
+        return eroded;
+    }
+    // --8<-- [end:road]
 
     /** Pebbles and darker earth on the trail tile whose middle is {@code mx}, {@code my}. */
     static void pebbles(Graphics2D g, double mx, double my, Random random) {

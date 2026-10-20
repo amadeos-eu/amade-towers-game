@@ -1,6 +1,7 @@
 package eu.amadeos.games.towers.domain;
 
 import eu.amadeos.gameengine.data.TextData.DataException;
+import eu.amadeos.gameengine.path.FlowField;
 import eu.amadeos.gameengine.tile.Cell;
 import eu.amadeos.gameengine.tile.TileMap;
 import eu.amadeos.gameengine.tiled.TiledMap;
@@ -13,8 +14,9 @@ import java.util.List;
  * A map as drawn in Tiled, {@code mapN.tmx} in the folder {@code maps}, with the tileset {@code tiles.tsx},
  * and what {@code waves.txt} plans for it. The tile layer {@code ground} holds the trees, pines, rocks and
  * water by their tiles' classes ({@link Ground}); the object layer {@code things} holds one or more
- * {@code lair} (where the enemies come from, a tile each) and one {@code castle} (where they go). There
- * is no road: the way is wherever the towers leave room.
+ * {@code lair} (where the enemies come from, a tile each) and one {@code castle} (where they go). The
+ * tiles of the class {@code road} must lead from every lair to the castle; a map without them is played
+ * on open ground only.
  */
 public final class Level {
     /** The maps of the game, in order. */
@@ -89,7 +91,18 @@ public final class Level {
         }
         if (lairs.isEmpty()) throw new DataException(map.source() + ": no object of the class lair");
         if (box == null) throw new DataException(map.source() + ": no object of the class castle");
-        return new Level(number, map, ground, lairs, castle, box, plan);
+        Level level = new Level(number, map, ground, lairs, castle, box, plan);
+        if (level.hasRoad()) {
+            FlowField way = FlowField.toward(level.width(), level.height(),
+                    (c, r) -> level.ground(c, r).walkable(Mode.ROAD), castle.toArray(Cell[]::new));
+            for (Cell lair : lairs) {
+                if (!way.reaches(lair)) {
+                    throw new DataException(map.source() + ": the road does not lead from the lair at ("
+                            + lair.col() + ", " + lair.row() + ") to the castle");
+                }
+            }
+        }
+        return level;
     }
     // --8<-- [end:read]
 
@@ -116,6 +129,14 @@ public final class Level {
 
     public Ground ground(int col, int row) {
         return ground.get(col, row);
+    }
+
+    /** Whether the map has a road; without one, every battle on it is fought on open ground. */
+    public boolean hasRoad() {
+        for (int row = 0; row < height(); row++) {
+            for (int col = 0; col < width(); col++) if (ground.get(col, row) == Ground.ROAD) return true;
+        }
+        return false;
     }
 
     public boolean contains(int col, int row) {

@@ -12,6 +12,7 @@ import eu.amadeos.games.towers.domain.Defender;
 import eu.amadeos.games.towers.domain.Field;
 import eu.amadeos.games.towers.domain.Game;
 import eu.amadeos.games.towers.domain.Level;
+import eu.amadeos.games.towers.domain.Mode;
 import eu.amadeos.games.towers.domain.Rules;
 import eu.amadeos.games.towers.domain.Tower;
 import eu.amadeos.games.towers.repository.Progress;
@@ -83,7 +84,11 @@ public final class Screenshots {
         shots.save(new File(dir, "tower-menu.png"), true);
         shots.tap(KeyEvent.VK_ESCAPE);
 
-        // The ford and the two caves, as the test player defends them.
+        // The meadow on the road, the ford and the two caves, as the test player defends them.
+        TowersGame.PlayScene road = shots.battle(1, 6);
+        road.camera().jumpTo(road.camera().worldWidth() / 2, road.camera().worldHeight() / 2);
+        shots.steps(2);
+        shots.save(new File(dir, "road.png"), false);
         TowersGame.PlayScene ford = shots.battle(2, 8);
         ford.camera().jumpTo(ford.camera().worldWidth() / 2, ford.camera().worldHeight() / 2);
         shots.steps(2);
@@ -121,7 +126,7 @@ public final class Screenshots {
         Rules.Plan plan = rules.plan(1);
         Rules.Plan rich = new Rules.Plan(1, 5000, plan.lives(), plan.tougher(), plan.waves());
         Level level = Level.read(1, TiledMap.load(Level.class, Level.FOLDER + Level.FILES.getFirst()), rich);
-        Game battle = new Game(level, rules);
+        Game battle = new Game(level, rules, Mode.OPEN);
         String[] kinds = {"archer", "cannon", "archer", "frost", "archer", "cannon"};
         int n = 0;
         int[] walls = {6, 12, 18, 24, 29};
@@ -240,6 +245,6 @@ public final class Screenshots {
     }
 
     static List<String> names() {
-        return List.of("title", "choice", "battle", "flowfield", "tower-menu", "ford", "caves");
+        return List.of("title", "choice", "battle", "flowfield", "tower-menu", "road", "ford", "caves");
     }
 }

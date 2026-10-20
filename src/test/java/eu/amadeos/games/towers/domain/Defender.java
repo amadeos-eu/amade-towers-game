@@ -83,7 +83,7 @@ public final class Defender {
     private double score(int col, int row, double range) {
         Level level = game.level();
         FlowField trial = FlowField.toward(level.width(), level.height(),
-                (c, r) -> (c != col || r != row) && level.ground(c, r).walkable() && game.tower(c, r) == null,
+                (c, r) -> (c != col || r != row) && game.open(c, r),
                 level.castle().toArray(Cell[]::new));
         double covered = 0;
         double longer = 0;
