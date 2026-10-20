@@ -1,0 +1,27 @@
+# The enemies of Towers. Change a number, start the game again, play.
+#
+#   health   hit points; the waves of a level make them tougher (waves.txt)
+#   speed    tiles per second
+#   armour   taken off every hit, but a hit always does at least 1
+#   bounty   gold for beating one
+#   harm     lives it costs when it reaches the castle (1 if not given)
+#   size     its radius in tiles, which a cannon ball's burst must reach (0.3 if not given)
+
+unit orc
+  health 38
+  speed 1.0
+  bounty 5
+
+unit wolf
+  health 22
+  speed 1.9
+  bounty 4
+  size 0.28
+
+unit troll
+  health 200
+  speed 0.55
+  armour 4
+  bounty 25
+  harm 3
+  size 0.4

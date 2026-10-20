@@ -1,0 +1,89 @@
+# The towers of Towers. Each block is one stage of a tower; the first stage of a kind is built, upgrade
+# names the stage it becomes, and "like" starts a stage with everything of the one before.
+#
+#   shot     arrow: flies after its target and hits it
+#            ball:  flies to where its target will be and bursts there (splash: the radius)
+#            frost: a wave of cold around the tower; units keep the part slow of their speed for cold seconds
+#   cost     gold to build, or to upgrade to this stage
+#   range    in tiles, from the middle of the tower
+#   reload   seconds between two shots
+#   damage   hit points per hit, less the target's armour
+#   speed    tiles per second the shot flies
+#   turn     radians per second the turret turns (6 if not given)
+
+tower archer
+  shot arrow
+  cost 40
+  range 3.0
+  reload 0.75
+  damage 9
+  speed 14
+  turn 10
+  upgrade archer-2
+
+tower archer-2 like archer
+  cost 45
+  range 3.3
+  reload 0.6
+  damage 14
+  upgrade archer-3
+
+tower archer-3 like archer-2
+  cost 75
+  range 3.6
+  reload 0.45
+  damage 20
+  upgrade none
+
+tower cannon
+  shot ball
+  cost 60
+  range 2.6
+  reload 1.9
+  damage 28
+  splash 0.9
+  speed 6
+  turn 3.5
+  upgrade cannon-2
+
+tower cannon-2 like cannon
+  cost 55
+  range 2.8
+  reload 1.8
+  damage 46
+  splash 1.0
+  upgrade cannon-3
+
+tower cannon-3 like cannon-2
+  cost 95
+  range 3.0
+  reload 1.6
+  damage 72
+  splash 1.2
+  upgrade none
+
+tower frost
+  shot frost
+  cost 75
+  range 2.2
+  reload 1.5
+  damage 3
+  slow 0.5
+  cold 2.0
+  upgrade frost-2
+
+tower frost-2 like frost
+  cost 60
+  range 2.5
+  damage 5
+  slow 0.4
+  cold 2.5
+  upgrade frost-3
+
+tower frost-3 like frost-2
+  cost 90
+  range 2.8
+  damage 8
+  slow 0.3
+  cold 3.0
+  upgrade none

@@ -1,0 +1,24 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=amadeOS Towers
+Name[de]=amadeOS Towers
+Name[fr]=amadeOS Towers
+Name[es]=amadeOS Towers
+Name[it]=amadeOS Towers
+GenericName=Tower Defence Game
+GenericName[de]=Tower-Defense-Spiel
+GenericName[fr]=Jeu de tower defense
+GenericName[es]=Juego de defensa de torres
+GenericName[it]=Gioco tower defense
+Comment=Build towers in the way of orcs, wolves and trolls and defend your castle on three battlefields
+Comment[de]=Bauen Sie Türme in den Weg von Orks, Wölfen und Trollen und verteidigen Sie Ihre Burg auf drei Schlachtfeldern
+Comment[fr]=Bâtissez des tours sur le chemin des orques, loups et trolls et défendez votre château sur trois champs de bataille
+Comment[es]=Construya torres en el camino de orcos, lobos y trolls y defienda su castillo en tres campos de batalla
+Comment[it]=Costruisci torri sulla via di orchi, lupi e troll e difendi il tuo castello su tre campi di battaglia
+Icon=amade-towers-game
+Exec=/usr/bin/amade-towers-game
+Terminal=false
+Categories=Game;StrategyGame;
+Keywords=tower defense;tower defence;strategy;maze;castle;orcs;game;
+StartupNotify=true
