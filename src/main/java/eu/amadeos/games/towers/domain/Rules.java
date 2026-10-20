@@ -19,10 +19,18 @@ public final class Rules {
     /** Where the data files lie among the classes. */
     public static final String FOLDER = "/eu/amadeos/games/towers/data/";
 
-    /** What a level gives the player and sends against them. */
-    public record Plan(int level, int gold, int lives, double tougher, List<Wave> waves) {
+    /**
+     * What a level gives the player and sends against them. {@code road} is how much more health the units
+     * have on the road than on open ground, where the towers make the way longer: 1.5 is half as much again.
+     */
+    public record Plan(int level, int gold, int lives, double tougher, double road, List<Wave> waves) {
         public Plan {
             waves = List.copyOf(waves);
+        }
+
+        /** A plan as strong on the road as on open ground. */
+        public Plan(int level, int gold, int lives, double tougher, List<Wave> waves) {
+            this(level, gold, lives, tougher, 1, waves);
         }
 
         /** How much more health the units of wave {@code number} (from 1) have than those of the first. */
@@ -144,7 +152,7 @@ public final class Rules {
             }
             if (waves.isEmpty()) throw level.error("no waves");
             plans.put(number, new Plan(number, level.integer("gold"), level.integer("lives"),
-                    level.number("tougher", 0), waves));
+                    level.number("tougher", 0), level.number("road", 1), waves));
             level.finish();
         }
         return plans;

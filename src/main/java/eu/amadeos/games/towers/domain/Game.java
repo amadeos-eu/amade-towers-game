@@ -221,7 +221,8 @@ public final class Game {
 
     private void startWave(int bonus, List<Event> report) {
         int number = ++wavesStarted;
-        spawners.add(new Spawner(plan.waves().get(number - 1), number, plan.toughness(number)));
+        double toughness = plan.toughness(number) * (mode == Mode.ROAD ? plan.road() : 1);
+        spawners.add(new Spawner(plan.waves().get(number - 1), number, toughness));
         countingDown = false;
         report.add(new Event.WaveStarted(number, bonus));
     }

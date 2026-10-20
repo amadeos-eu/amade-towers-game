@@ -253,6 +253,24 @@ class GameTest {
     }
 
     @Test
+    void onTheRoadTheUnitsAreTougher() {
+        Rules rules = Maps.rules("""
+                level 1
+                  gold 0
+                  lives 5
+                  road 2
+                  wave orc 1 1
+                """);
+        String[] rows = {"L#######CC"};
+        for (Mode mode : Mode.values()) {
+            Game game = new Game(Maps.of(rules, rows), rules, mode);
+            game.callWave();
+            game.update(STEP);
+            assertEquals(mode == Mode.ROAD ? 76 : 38, game.creeps().getFirst().maxHealth(), 1e-9, mode.toString());
+        }
+    }
+
+    @Test
     void aMapWithoutARoadIsPlayedOnOpenGround() {
         Rules rules = Maps.rules(ONE_ORC);
         Game game = new Game(Maps.of(rules, "L.......CC"), rules, Mode.ROAD);

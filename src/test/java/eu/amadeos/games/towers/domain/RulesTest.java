@@ -27,6 +27,7 @@ class RulesTest {
         assertEquals(1, rules.unit("orc").harm(), "not given: 1");
         assertEquals(10, rules.plan(1).waves().size());
         assertEquals(1.1 * 1.1, rules.plan(1).toughness(3), 1e-9, "10 % more health per wave");
+        assertEquals(1.5, rules.plan(1).road(), "half as much health again on the road");
     }
     // --8<-- [end:test-files]
 

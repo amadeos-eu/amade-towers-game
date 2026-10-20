@@ -3,6 +3,8 @@
 #   gold     to build with at the start
 #   lives    the castle falls when they are gone; a unit that reaches it takes its harm (units.txt)
 #   tougher  each wave's units have this much more health than the wave before: 0.12 is 12 %
+#   road     on the road, the units have this many times the health they have on open ground, where the
+#            towers make the way longer (1 if not given)
 #   wave     one line per wave, in order: groups of a unit, how many, and the seconds between two,
 #            one group after the other. Units come out of the lairs in turn.
 
@@ -10,6 +12,7 @@ level 1
   gold 150
   lives 20
   tougher 0.10
+  road 1.5
   wave orc 6 1.4
   wave orc 9 1.1
   wave wolf 8 0.7
@@ -25,6 +28,7 @@ level 2
   gold 170
   lives 20
   tougher 0.14
+  road 1.2
   wave orc 8 1.2
   wave wolf 8 0.7
   wave orc 12 0.9
@@ -42,6 +46,7 @@ level 3
   gold 220
   lives 20
   tougher 0.11
+  road 1.5
   wave orc 10 1.0
   wave wolf 10 0.6
   wave orc 14 0.8

@@ -60,7 +60,7 @@ What the battlefields send and give is in `src/main/resources/eu/amadeos/games/t
 
 - `units.txt`: each enemy's health, speed, armour, bounty, harm and size.
 - `towers.txt`: each stage of each tower, its cost, range, reload, damage and shot; `like` starts a stage with everything of the one before.
-- `waves.txt`: each level's gold and lives, how much tougher each wave is, and its waves as groups of a unit, how many and how far apart.
+- `waves.txt`: each level's gold and lives, how much tougher each wave is, how much tougher the units are on the road (where no maze makes their way longer), and its waves as groups of a unit, how many and how far apart.
 
 Change a number, start the game again, play. A mistake is reported with its file and line. `LevelTest` plays every battlefield with a simple builder, on the road and on open ground, so a level that cannot be won, or a map whose lairs cannot reach the castle, fails the build.
 
