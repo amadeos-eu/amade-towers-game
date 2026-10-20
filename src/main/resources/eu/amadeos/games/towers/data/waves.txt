@@ -1,0 +1,63 @@
+# What each level gives the player and sends against them.
+#
+#   gold     to build with at the start
+#   lives    the castle falls when they are gone; a unit that reaches it takes its harm (units.txt)
+#   tougher  each wave's units have this much more health than the wave before: 0.12 is 12 %
+#   road     on the road, the units have this many times the health they have on open ground, where the
+#            towers make the way longer (1 if not given)
+#   wave     one line per wave, in order: groups of a unit, how many, and the seconds between two,
+#            one group after the other. Units come out of the lairs in turn.
+
+level 1
+  gold 150
+  lives 20
+  tougher 0.10
+  road 1.5
+  wave orc 6 1.4
+  wave orc 9 1.1
+  wave wolf 8 0.7
+  wave orc 10 0.9  wolf 4 0.6
+  wave troll 1 1  orc 8 0.8
+  wave wolf 14 0.45
+  wave orc 14 0.7  troll 1 1
+  wave wolf 10 0.5  orc 10 0.6
+  wave troll 3 2.5  wolf 8 0.5
+  wave orc 16 0.5  troll 3 2  wolf 12 0.4
+
+level 2
+  gold 170
+  lives 20
+  tougher 0.14
+  road 1.2
+  wave orc 8 1.2
+  wave wolf 8 0.7
+  wave orc 12 0.9
+  wave troll 1 1  wolf 8 0.6
+  wave orc 12 0.7  wolf 6 0.5
+  wave troll 2 2.5
+  wave wolf 18 0.4
+  wave orc 16 0.6  troll 2 2
+  wave wolf 12 0.4  orc 12 0.5
+  wave troll 4 2
+  wave orc 20 0.45  wolf 12 0.4
+  wave troll 4 1.5  wolf 16 0.35  orc 16 0.45
+
+level 3
+  gold 220
+  lives 20
+  tougher 0.11
+  road 1.5
+  wave orc 10 1.0
+  wave wolf 10 0.6
+  wave orc 14 0.8
+  wave troll 2 2  orc 8 0.8
+  wave wolf 16 0.45
+  wave orc 16 0.6  wolf 8 0.5
+  wave troll 4 2
+  wave wolf 20 0.35
+  wave orc 20 0.5  troll 2 2
+  wave troll 4 1.5  wolf 12 0.4
+  wave orc 24 0.4  wolf 16 0.35
+  wave troll 6 1.5
+  wave wolf 24 0.3  orc 20 0.4
+  wave troll 6 1.2  orc 24 0.35  wolf 20 0.3
