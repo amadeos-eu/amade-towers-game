@@ -47,7 +47,6 @@ public final class Benchmark {
                     if (play.game().countdown().isPresent()) play.game().callWave();
                     play.step(TowersGame.STEP);
                 }
-                game.settle();
                 int w = (int) Field.WIDTH * scale;
                 int h = (int) Field.HEIGHT * scale;
                 BufferedImage image = gc != null ? gc.createCompatibleImage(w, h) : new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
