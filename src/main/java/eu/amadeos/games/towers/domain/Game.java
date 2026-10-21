@@ -46,7 +46,7 @@ public final class Game {
     /** What the player's commands did since the last step; the next step reports it with its own events. */
     private final List<Event> commanded = new ArrayList<>();
     private FlowField flow;
-    /** Per tile, which neighbours the way of the units leads to and comes from: the trail on the ground. */
+    /** Per tile, which neighbours the way of the units leads to and comes from: the trail the builders of the tests and the title screen build beside. */
     private int[] trail;
     /** Counts the changes of the map, so a placement asked twice need not search twice. */
     private int version;
@@ -545,7 +545,7 @@ public final class Game {
         return trail[row * level.width() + col];
     }
 
-    /** Changes with every tower built or sold: the painter redraws the trail when it does. */
+    /** Changes with every tower built or sold, and with it the way of the units. */
     public int version() {
         return version;
     }

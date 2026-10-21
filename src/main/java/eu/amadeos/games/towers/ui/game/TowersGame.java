@@ -199,11 +199,6 @@ public final class TowersGame implements Arena {
         return rules;
     }
 
-    /** The ground of every battlefield drawn at once with its newest trail: for screenshots. */
-    void settle() {
-        terrains.values().forEach(Terrain::settle);
-    }
-
     /** Plays battlefield {@code number} at once, without the title and the choice. */
     PlayScene play(int number) {
         return play(new Game(levels.get(number - 1), rules, mode));
@@ -218,7 +213,7 @@ public final class TowersGame implements Arena {
 
     // ---- the scenes ------------------------------------------------------------------------------
 
-    /** The ground of a battle: its level, with the road or the trail. */
+    /** The ground of a battle: its level, with the road or without. */
     private Terrain terrain(Game game) {
         Level level = game.level();
         return terrains.computeIfAbsent(level.number() + " " + game.mode(), key -> new Terrain(level, game.mode()));
@@ -252,7 +247,6 @@ public final class TowersGame implements Arena {
             demo = new Game(levels.getFirst(), rules, mode, 7);
             terrain = terrain(demo);
             demo.callWave();
-            terrain.update(demo);
             camera.jumpTo(camera.worldWidth() / 2, camera.worldHeight() / 2);
         }
 
@@ -271,7 +265,6 @@ public final class TowersGame implements Arena {
             demo.update(seconds);
             effects.react(demo.events(), false);
             effects.update(seconds);
-            terrain.update(demo);
             if (demo.phase() != Game.Phase.PLAYING) restart();
             double way = camera.worldWidth() - camera.viewWidth();
             double along = way <= 0 ? 0 : (time * TITLE_SPEED) % (2 * way);
@@ -356,7 +349,6 @@ public final class TowersGame implements Arena {
             Camera camera = cameras.computeIfAbsent(chosen, n -> wideCamera(level));
             camera.jumpTo(camera.viewWidth() / 2 + time * TITLE_SPEED, camera.worldHeight() / 2);
             Terrain terrain = terrain(field);
-            terrain.update(field);
             painter.paint(g, field, terrain, camera, effects, TowersPainter.Marks.NONE, alpha);
         }
 
@@ -413,7 +405,6 @@ public final class TowersGame implements Arena {
             Level level = battle.level();
             camera = TowersGame.camera(level);
             terrain = TowersGame.this.terrain(battle);
-            terrain.update(game);
             Level.Box castle = level.castleBox();
             camera.jumpTo(camera.worldWidth() / 2, castle.y() + castle.height() / 2);
             effects.clear();
@@ -461,7 +452,6 @@ public final class TowersGame implements Arena {
                 }
             }
             if (selected != null && !game.towers().contains(selected)) selected = null;
-            terrain.update(game);
         }
         // --8<-- [end:play]
 

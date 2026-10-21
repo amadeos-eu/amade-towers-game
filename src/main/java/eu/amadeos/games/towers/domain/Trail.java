@@ -1,9 +1,9 @@
 package eu.amadeos.games.towers.domain;
 
 /**
- * The trail the units wear into the grass: for each tile on the way, the neighbours the way leads to and
- * comes from, one bit each for the eight directions. The painter draws a piece of path from the middle of
- * the tile towards each of them.
+ * The way of the units: for each tile on the way, the neighbours the way leads to and comes from, one bit
+ * each for the eight directions. Nothing draws it; the builders of the tests and the title screen build
+ * beside it.
  */
 public final class Trail {
     /** The directions in the order of their bits: up, left, down, right, then the corners. */

@@ -335,26 +335,7 @@ final class Art {
         }
     }
 
-    // ---- the trail -------------------------------------------------------------------------------
-
-    // --8<-- [start:trail]
-    /**
-     * The trail along {@code way}, lines from the middle of a tile to the middle of the next: a dark rim
-     * where the grass is trodden down, a lighter edge, and the bare earth in the middle. Each width is one
-     * stroke of the whole way, so crossings and bends are not drawn darker twice.
-     */
-    static void trail(Graphics2D g, Shape way) {
-        g.setColor(DIRT_EDGE);
-        g.setStroke(new BasicStroke(17, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(way);
-        g.setColor(DIRT_RIM);
-        g.setStroke(new BasicStroke(15, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(way);
-        g.setColor(DIRT);
-        g.setStroke(new BasicStroke(13, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(way);
-    }
-    // --8<-- [end:trail]
+    // ---- the road --------------------------------------------------------------------------------
 
     // --8<-- [start:road]
     /**
@@ -398,7 +379,7 @@ final class Art {
     }
     // --8<-- [end:road]
 
-    /** Pebbles and darker earth on the trail tile whose middle is {@code mx}, {@code my}. */
+    /** Pebbles and darker earth on the road tile whose middle is {@code mx}, {@code my}. */
     static void pebbles(Graphics2D g, double mx, double my, Random random) {
         g.setColor(new Color(0x8C6A42));
         for (int i = 0; i < 3; i++) {

@@ -269,27 +269,6 @@ class TowersGameTest {
         assertEquals(Game.Phase.PLAYING, again.game().phase());
     }
 
-    // --8<-- [start:test-terrain]
-    @Test
-    void aNewWayRedrawsOnlyAFewSquaresOfTheGroundInEachFrame() {
-        TowersGame.PlayScene play = game.play(battle(5000, 20, "orc", 1));
-        BufferedImage image = new BufferedImage(1280, 800, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = image.createGraphics();
-        g.scale(2, 2);
-        game.render(g, 1);
-        assertTrue(play.terrain().settled());
-        for (int row = 0; row < play.game().level().height(); row++) {
-            play.game().build(21, row, game.rules().tower("archer"));    // a wall: the way changes everywhere
-        }
-        steps(1);
-        game.render(g, 1);
-        assertFalse(play.terrain().settled(), "two squares at most in a frame");
-        for (int i = 0; i < 20; i++) game.render(g, 1);
-        g.dispose();
-        assertTrue(play.terrain().settled() || !play.camera().sees(0, 0, 1, 1, 1), "the squares in view caught up");
-    }
-    // --8<-- [end:test-terrain]
-
     @Test
     void everySceneAndBattlefieldCanBeDrawn() {
         BufferedImage image = new BufferedImage(1280, 800, BufferedImage.TYPE_INT_RGB);

@@ -205,7 +205,6 @@ public final class Screenshots {
 
     /** World and overlay at twice the logical size, with the mouse pointer if {@code pointer}. */
     private void save(File file, boolean pointer) throws Exception {
-        game.settle();
         write(file, g -> {
             game.render(g, 1);
             game.renderOverlay(g, 1);

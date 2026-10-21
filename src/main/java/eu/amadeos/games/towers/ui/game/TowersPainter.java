@@ -77,7 +77,7 @@ final class TowersPainter {
         int toCol = Math.min(level.width() - 1, (int) ((camera.x(alpha) + camera.viewWidth()) / Field.TILE) + 1);
         int toRow = Math.min(level.height() - 1, (int) ((camera.y(alpha) + camera.viewHeight()) / Field.TILE) + 1);
 
-        terrain.render(g, camera, alpha, false);
+        terrain.render(g, camera, alpha);
         effects.renderGround(g);
         if (marks.flow()) flow(g, game.flow(), fromCol, fromRow, toCol, toRow);
         for (Tower tower : game.towers()) {
