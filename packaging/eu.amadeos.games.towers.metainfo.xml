@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata of amade-towers-game, installed as /usr/share/metainfo/eu.amadeos.games.towers.metainfo.xml.
+     amadeOS Software shows it for the installed package; a repository's appstream-generator reads it too. -->
+<component type="desktop-application">
+  <id>eu.amadeos.games.towers</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>EUPL-1.2</project_license>
+
+  <name>amadeOS Towers</name>
+
+  <summary>Build towers in the way of orcs, wolves and trolls and defend your castle</summary>
+  <summary xml:lang="de">Türme gegen Orks, Wölfe und Trolle bauen und Ihre Burg verteidigen</summary>
+  <summary xml:lang="fr">Bâtissez des tours face aux orques, loups et trolls et défendez votre château</summary>
+  <summary xml:lang="es">Construya torres contra orcos, lobos y trols y defienda su castillo</summary>
+  <summary xml:lang="it">Costruisci torri contro orchi, lupi e troll e difendi il tuo castello</summary>
+
+  <description>
+    <p>The tower defence game of the amadeOS desktop: orcs, dire wolves and trolls march from their lairs on your castle, and you build archers, cannons and frost towers in their way. Play on the road, or on open ground where every tower makes their way longer.</p>
+    <p xml:lang="de">Das Tower-Defense-Spiel des amadeOS-Desktops: Orks, Schreckenswölfe und Trolle ziehen aus ihren Höhlen auf Ihre Burg, und Sie bauen Bogenschützen, Kanonen und Frosttürme in ihren Weg. Spielen Sie an der Straße oder auf freiem Feld, wo jeder Turm ihren Weg verlängert.</p>
+    <p xml:lang="fr">Le jeu de défense de tours du bureau amadeOS : orques, loups terribles et trolls marchent de leurs repaires vers votre château, et vous construisez archers, canons et tours de givre sur leur chemin. Jouez sur la route, ou en terrain ouvert où chaque tour allonge leur chemin.</p>
+    <p xml:lang="es">El juego de defensa de torres del escritorio amadeOS: orcos, lobos terribles y trols marchan desde sus guaridas hacia su castillo, y usted construye arqueros, cañones y torres de escarcha en su camino. Juegue en la carretera, o en campo abierto donde cada torre alarga su camino.</p>
+    <p xml:lang="it">Il gioco di difesa con torri del desktop amadeOS: orchi, lupi feroci e troll marciano dalle loro tane verso il tuo castello, e tu costruisci arcieri, cannoni e torri di gelo sul loro cammino. Gioca sulla strada, o in campo aperto dove ogni torre allunga il loro percorso.</p>
+    <ul>
+      <li>Three tower kinds, each with two upgrades</li>
+      <li xml:lang="de">Drei Turmarten, jede mit zwei Ausbaustufen</li>
+      <li xml:lang="fr">Trois sortes de tours, chacune avec deux améliorations</li>
+      <li xml:lang="es">Tres tipos de torre, cada uno con dos mejoras</li>
+      <li xml:lang="it">Tre tipi di torre, ognuno con due potenziamenti</li>
+      <li>The next wave can be called early for extra gold</li>
+      <li xml:lang="de">Die nächste Welle lässt sich für Extragold früher rufen</li>
+      <li xml:lang="fr">La vague suivante peut être appelée plus tôt pour de l'or en plus</li>
+      <li xml:lang="es">La siguiente oleada puede llamarse antes por oro extra</li>
+      <li xml:lang="it">La prossima ondata si può chiamare prima per oro extra</li>
+      <li>Battlefields made with the Tiled editor</li>
+      <li xml:lang="de">Schlachtfelder aus dem Tiled-Editor</li>
+      <li xml:lang="fr">Champs de bataille faits avec l'éditeur Tiled</li>
+      <li xml:lang="es">Campos de batalla hechos con el editor Tiled</li>
+      <li xml:lang="it">Campi di battaglia fatti con l'editor Tiled</li>
+      <li>Built on amade-game-engine; plays on other operating systems as well</li>
+      <li xml:lang="de">Gebaut auf amade-game-engine; läuft auch auf anderen Betriebssystemen</li>
+      <li xml:lang="fr">Construit sur amade-game-engine ; fonctionne aussi sur d'autres systèmes d'exploitation</li>
+      <li xml:lang="es">Hecho con amade-game-engine; funciona también en otros sistemas operativos</li>
+      <li xml:lang="it">Costruito su amade-game-engine; funziona anche su altri sistemi operativi</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">amade-towers-game.desktop</launchable>
+  <icon type="stock">amade-towers-game</icon>
+  <categories>
+    <category>Game</category>
+    <category>StrategyGame</category>
+  </categories>
+
+  <url type="homepage">https://github.com/datazuul/amade-towers-game</url>
+  <url type="bugtracker">https://github.com/datazuul/amade-towers-game/issues</url>
+  <developer id="eu.amadeos">
+    <name>amadeOS Project</name>
+  </developer>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The first wave meets the archers</caption>
+      <caption xml:lang="de">Die erste Welle trifft auf die Bogenschützen</caption>
+      <caption xml:lang="fr">La première vague rencontre les archers</caption>
+      <caption xml:lang="es">La primera oleada se topa con los arqueros</caption>
+      <caption xml:lang="it">La prima ondata incontra gli arcieri</caption>
+      <image>https://raw.githubusercontent.com/datazuul/amade-towers-game/main/docs/screenshots/amade-towers-game.png</image>
+    </screenshot>
+  </screenshots>
+
+  <provides>
+    <binary>amade-towers-game</binary>
+  </provides>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-fantasy">mild</content_attribute>
+  </content_rating>
+</component>
