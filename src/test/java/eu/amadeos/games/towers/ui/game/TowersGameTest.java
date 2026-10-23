@@ -220,6 +220,25 @@ class TowersGameTest {
         assertEquals(30, play.camera().y(), 1e-9);
     }
 
+    // --8<-- [start:test-wide]
+    @Test
+    void aWideScreenShowsMoreMapAndKeepsTheButtonsAtTheRightEdge() {
+        game.resize(711);                       // 16:9: 711 × 400
+        TowersGame.PlayScene play = game.play(1);
+        steps(2);
+        assertEquals(711, play.camera().viewWidth(), 1e-9, "the map gets the extra width");
+        mouse.moved(711 - 42 - 184 + 60, 10);   // on "next wave", 71 units right of where 640 has it
+        steps(1);
+        click();
+        assertEquals(1, play.game().wavesStarted());
+        play.camera().jumpTo(0, 0);
+        mouse.moved(710, 200);                  // the real right edge of the screen moves the map
+        double x = play.camera().x();
+        steps(10);
+        assertTrue(play.camera().x() > x);
+    }
+    // --8<-- [end:test-wide]
+
     @Test
     void nCallsTheNextWaveForGoldAndFDoublesTheSpeed() {
         TowersGame.PlayScene play = game.play(1);
