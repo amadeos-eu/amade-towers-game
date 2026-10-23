@@ -42,16 +42,25 @@ final class Hud {
     static final double CARD_GAP = 16;
     static final double CARD_TOP = 110;
 
-    /** The two buttons of the bar, in logical coordinates. */
-    static final Rectangle2D.Double NEXT = new Rectangle2D.Double(Field.WIDTH - 184, 4, 136, 14);
-    static final Rectangle2D.Double FAST = new Rectangle2D.Double(Field.WIDTH - 42, 4, 34, 14);
+    /** The two buttons of the bar, in logical coordinates: at the right edge of the screen. */
+    final Rectangle2D.Double nextButton = new Rectangle2D.Double(Field.WIDTH - 184, 4, 136, 14);
+    final Rectangle2D.Double fastButton = new Rectangle2D.Double(Field.WIDTH - 42, 4, 34, 14);
 
     private final Messages msg;
     private final Map<Integer, Font> fonts = new HashMap<>();
     private final Rectangle2D.Double rectangle = new Rectangle2D.Double();
 
+    /** The logical width of the screen: {@link Field#WIDTH}, or more on a wide screen. */
+    private double width = Field.WIDTH;
+
     Hud(Messages msg) {
         this.msg = msg;
+    }
+
+    void resize(double width) {
+        this.width = width;
+        nextButton.x = width - 184;
+        fastButton.x = width - 42;
     }
 
     // --8<-- [start:bar]
@@ -59,10 +68,10 @@ final class Hud {
     void bar(Graphics2D g, Game game, boolean fast, double mouseX, double mouseY) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setPaint(new GradientPaint(0, 0, WOOD_TOP, 0, (float) Field.BAR, WOOD_BOTTOM));
-        rectangle.setRect(0, 0, Field.WIDTH, Field.BAR);
+        rectangle.setRect(0, 0, width, Field.BAR);
         g.fill(rectangle);
         g.setColor(BRASS);
-        rectangle.setRect(0, Field.BAR - 1, Field.WIDTH, 1);
+        rectangle.setRect(0, Field.BAR - 1, width, 1);
         g.fill(rectangle);
         g.setFont(font(12, true));
         Art.coin(g, 10, 5, 12);
@@ -72,15 +81,15 @@ final class Hud {
         g.setColor(game.lives() <= game.level().plan().lives() / 4 ? RED : CHALK);
         g.drawString(Integer.toString(game.lives()), 98, 15);
         g.setColor(CHALK);
-        centred(g, msg.format("hud.wave", game.wavesStarted(), game.waves()), Field.WIDTH / 2, 15);
+        centred(g, msg.format("hud.wave", game.wavesStarted(), game.waves()), width / 2, 15);
 
         boolean more = game.wavesStarted() < game.waves() && game.phase() == Game.Phase.PLAYING;
         OptionalDouble countdown = game.countdown();
         String next = countdown.isPresent()
                 ? msg.format("hud.next.in", (int) Math.ceil(countdown.getAsDouble()))
                 : msg.get("hud.next");
-        button(g, NEXT, next, more ? CHALK : GREY, more && NEXT.contains(mouseX, mouseY));
-        button(g, FAST, "x2", fast ? GREEN : GREY, FAST.contains(mouseX, mouseY));
+        button(g, nextButton, next, more ? CHALK : GREY, more && nextButton.contains(mouseX, mouseY));
+        button(g, fastButton, "x2", fast ? GREEN : GREY, fastButton.contains(mouseX, mouseY));
     }
     // --8<-- [end:bar]
 
@@ -102,7 +111,7 @@ final class Hud {
         int alpha = (int) Math.round(255 * Math.clamp(left / 0.5, 0, 1));
         g.setFont(font(size, true));
         FontMetrics metrics = g.getFontMetrics();
-        float x = (float) (Field.WIDTH - metrics.stringWidth(line)) / 2;
+        float x = (float) (width - metrics.stringWidth(line)) / 2;
         g.setColor(new Color(0, 0, 0, alpha / 2));
         g.drawString(line, x + 1.5f, (float) y + 1.5f);
         g.setColor(new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), alpha));
@@ -150,8 +159,8 @@ final class Hud {
     // --8<-- [end:card]
 
     /** The left edge of card {@code index} of {@code count}. */
-    static double cardX(int index, int count) {
-        double left = (Field.WIDTH - count * CARD_WIDTH - (count - 1) * CARD_GAP) / 2;
+    double cardX(int index, int count) {
+        double left = (width - count * CARD_WIDTH - (count - 1) * CARD_GAP) / 2;
         return left + index * (CARD_WIDTH + CARD_GAP);
     }
 
@@ -170,7 +179,7 @@ final class Hud {
         boolean won = game.phase() == Game.Phase.WON;
         text(g, msg.get(won ? "won.title" : "lost.title"), 130, 32, true, won ? GOLD : RED);
         if (won) {
-            for (int i = 0; i < 3; i++) Art.star(g, Field.WIDTH / 2 + (i - 1) * 44, 180, 17, i < game.stars());
+            for (int i = 0; i < 3; i++) Art.star(g, width / 2 + (i - 1) * 44, 180, 17, i < game.stars());
             if (better) text(g, msg.get("won.best"), 222, 13, true, GREEN);
         }
         text(g, msg.format("result.lives", game.lives(), game.level().plan().lives()), 252, 15, false, CHALK);
@@ -191,14 +200,14 @@ final class Hud {
     /** Darkens the world so text over it stays readable. */
     void veil(Graphics2D g) {
         g.setColor(VEIL);
-        rectangle.setRect(0, 0, Field.WIDTH, Field.HEIGHT);
+        rectangle.setRect(0, 0, width, Field.HEIGHT);
         g.fill(rectangle);
     }
 
     /** A line of text centred horizontally, its baseline at {@code y}, with a shadow. */
     void text(Graphics2D g, String line, double y, int size, boolean bold, Color colour) {
         g.setFont(font(size, bold));
-        float x = (float) (Field.WIDTH - g.getFontMetrics().stringWidth(line)) / 2;
+        float x = (float) (width - g.getFontMetrics().stringWidth(line)) / 2;
         g.setColor(SHADOW);
         g.drawString(line, x + 1, (float) y + 1);
         g.setColor(colour);

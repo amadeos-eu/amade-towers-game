@@ -89,6 +89,9 @@ public final class TowersGame implements Arena {
     /** On the road or on open ground, as the choice screen last set it. */
     private Mode mode;
     private GameLoop loop;
+    private GameCanvas canvas;
+    /** The logical width of the screen: {@link Field#WIDTH}, or more on a wide screen. */
+    private double width = Field.WIDTH;
 
     @Inject
     public TowersGame(Keyboard keyboard, Mouse mouse, Messages msg, TowersSettings settings, Progress progress,
@@ -127,6 +130,8 @@ public final class TowersGame implements Arena {
 
     /** Starts the loop; the canvas draws the scenes' worlds and then their overlays. */
     public void start(GameCanvas canvas) {
+        this.canvas = canvas;
+        canvas.setMaxLogicalWidth(Field.MAX_WIDTH);
         loop = new GameLoop(UPDATES_PER_SECOND, FRAMES_PER_SECOND, this::update, canvas::render);
         loop.start();
     }
@@ -138,6 +143,7 @@ public final class TowersGame implements Arena {
     void update(double seconds) {
         keyboard.poll();
         mouse.poll();
+        if (canvas != null) resize(canvas.logicalWidth());
         scenes.update(seconds);
     }
 
@@ -213,6 +219,12 @@ public final class TowersGame implements Arena {
 
     // ---- the scenes ------------------------------------------------------------------------------
 
+    /** A new screen width: the map shows more or less, the bar's buttons stay at the right edge. */
+    void resize(double width) {
+        this.width = width;
+        hud.resize(width);
+    }
+
     /** The ground of a battle: its level, with the road or without. */
     private Terrain terrain(Game game) {
         Level level = game.level();
@@ -220,14 +232,15 @@ public final class TowersGame implements Arena {
     }
 
     /** The view of a battle, below the bar. */
-    private static Camera camera(Level level) {
-        return new Camera(Field.VIEW_WIDTH, Field.VIEW_HEIGHT, level.width() * Field.TILE, level.height() * Field.TILE)
+    private Camera camera(Level level) {
+        return new Camera(Field.VIEW_WIDTH + width - Field.WIDTH, Field.VIEW_HEIGHT, level.width() * Field.TILE,
+                level.height() * Field.TILE)
                 .placedAt(0, Field.BAR);
     }
 
     /** The view of the title and the choice: the whole screen, there is no bar. */
-    private static Camera wideCamera(Level level) {
-        return new Camera(Field.WIDTH, Field.HEIGHT, level.width() * Field.TILE, level.height() * Field.TILE);
+    private Camera wideCamera(Level level) {
+        return new Camera(width, Field.HEIGHT, level.width() * Field.TILE, level.height() * Field.TILE);
     }
 
     /** The first battlefield with a battle going on, a few towers built along the way; the view drifts across. */
@@ -266,6 +279,7 @@ public final class TowersGame implements Arena {
             effects.react(demo.events(), false);
             effects.update(seconds);
             if (demo.phase() != Game.Phase.PLAYING) restart();
+            camera.resize(width, Field.HEIGHT);
             double way = camera.worldWidth() - camera.viewWidth();
             double along = way <= 0 ? 0 : (time * TITLE_SPEED) % (2 * way);
             camera.moveBy((along < way ? along : 2 * way - along) - camera.x(), 0);
@@ -336,7 +350,7 @@ public final class TowersGame implements Arena {
         int cardAt(double x, double y) {
             if (Double.isNaN(x) || y < Hud.CARD_TOP || y > Hud.CARD_TOP + Hud.CARD_HEIGHT) return 0;
             for (int i = 0; i < levels.size(); i++) {
-                double left = Hud.cardX(i, levels.size());
+                double left = hud.cardX(i, levels.size());
                 if (x >= left && x < left + Hud.CARD_WIDTH) return i + 1;
             }
             return 0;
@@ -347,6 +361,7 @@ public final class TowersGame implements Arena {
             Level level = levels.get(chosen - 1);
             Game field = fields.computeIfAbsent(chosen + " " + mode, key -> new Game(level, rules, mode));
             Camera camera = cameras.computeIfAbsent(chosen, n -> wideCamera(level));
+            camera.resize(width, Field.HEIGHT);
             camera.jumpTo(camera.viewWidth() / 2 + time * TITLE_SPEED, camera.worldHeight() / 2);
             Terrain terrain = terrain(field);
             painter.paint(g, field, terrain, camera, effects, TowersPainter.Marks.NONE, alpha);
@@ -358,7 +373,7 @@ public final class TowersGame implements Arena {
             hud.text(g, msg.get("select.title"), 70, 30, true, Hud.GOLD);
             for (int i = 0; i < levels.size(); i++) {
                 int number = i + 1;
-                hud.card(g, Hud.cardX(i, levels.size()), Hud.CARD_TOP, number, number <= progress.open(),
+                hud.card(g, hud.cardX(i, levels.size()), Hud.CARD_TOP, number, number <= progress.open(),
                         number == chosen, progress);
             }
             hud.text(g, msg.get(mode == Mode.ROAD ? "select.road" : "select.open"), MODE_LINE, 13, true, Hud.GOLD);
@@ -403,7 +418,7 @@ public final class TowersGame implements Arena {
         PlayScene(Game battle) {
             game = battle;
             Level level = battle.level();
-            camera = TowersGame.camera(level);
+            camera = TowersGame.this.camera(level);
             terrain = TowersGame.this.terrain(battle);
             Level.Box castle = level.castleBox();
             camera.jumpTo(camera.worldWidth() / 2, castle.y() + castle.height() / 2);
@@ -425,6 +440,8 @@ public final class TowersGame implements Arena {
                 scenes.push(new PauseScene());
                 return;
             }
+            camera.resize(Field.VIEW_WIDTH + width - Field.WIDTH, Field.VIEW_HEIGHT);
+            menu.setBounds(4, Field.BAR + 4, width - 4, Field.HEIGHT - 4);
             input(seconds);
             int times = fast ? 2 : 1;
             for (int i = 0; i < times; i++) step(seconds);
@@ -489,7 +506,7 @@ public final class TowersGame implements Arena {
             }
             if (mouse.isInside() && !dragging && !Double.isNaN(mx)) {
                 if (mx < EDGE) dx -= PAN_SPEED * seconds;
-                if (mx > Field.WIDTH - EDGE) dx += PAN_SPEED * seconds;
+                if (mx > width - EDGE) dx += PAN_SPEED * seconds;
                 if (my > Field.HEIGHT - EDGE) dy += PAN_SPEED * seconds;
             }
             if (dragging && !Double.isNaN(dragX)) {
@@ -514,8 +531,8 @@ public final class TowersGame implements Arena {
         /** A left click: on the bar's buttons, on the open menu, on a tower, or on the grass. */
         private void click(double mx, double my) {
             if (my < Field.BAR) {
-                if (Hud.NEXT.contains(mx, my)) game.callWave();
-                if (Hud.FAST.contains(mx, my)) fast = !fast;
+                if (hud.nextButton.contains(mx, my)) game.callWave();
+                if (hud.fastButton.contains(mx, my)) fast = !fast;
                 return;
             }
             if (menu.isOpen()) {

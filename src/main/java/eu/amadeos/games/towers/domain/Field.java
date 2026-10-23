@@ -15,6 +15,13 @@ public final class Field {
     /** The part of the screen that shows the map: 32 × 18.9 tiles. */
     public static final double VIEW_WIDTH = WIDTH;
     public static final double VIEW_HEIGHT = HEIGHT - BAR;
+    // --8<-- [start:max-width]
+    /**
+     * How wide the screen may grow on a wide monitor: the map gets the extra width, up to the width of the
+     * smallest battlefield, so that no screen shows more than a whole battlefield.
+     */
+    public static final int MAX_WIDTH = 720;
+    // --8<-- [end:max-width]
 
     /** A tower sold brings back this part of all that was paid for it. */
     public static final double REFUND = 0.7;
