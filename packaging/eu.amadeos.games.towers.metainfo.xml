@@ -51,8 +51,8 @@
     <category>StrategyGame</category>
   </categories>
 
-  <url type="homepage">https://github.com/datazuul/amade-towers-game</url>
-  <url type="bugtracker">https://github.com/datazuul/amade-towers-game/issues</url>
+  <url type="homepage">https://github.com/amadeos-eu/amade-towers-game</url>
+  <url type="bugtracker">https://github.com/amadeos-eu/amade-towers-game/issues</url>
   <developer id="eu.amadeos">
     <name>amadeOS Project</name>
   </developer>
@@ -64,7 +64,7 @@
       <caption xml:lang="fr">La première vague rencontre les archers</caption>
       <caption xml:lang="es">La primera oleada se topa con los arqueros</caption>
       <caption xml:lang="it">La prima ondata incontra gli arcieri</caption>
-      <image>https://raw.githubusercontent.com/datazuul/amade-towers-game/main/docs/screenshots/amade-towers-game.png</image>
+      <image>https://raw.githubusercontent.com/amadeos-eu/amade-towers-game/main/docs/screenshots/amade-towers-game.png</image>
     </screenshot>
   </screenshots>
 
