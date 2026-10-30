@@ -86,7 +86,7 @@ With `../amade-game-engine` (and `../amade-commons`) checked out next to this re
 
 From the engine: `FlowField` (one search from the castle gives every tile its way), `Catalog` (the data files), `OverlayMenu`, `Mouse`, `TiledMap`, `Camera`, `Rotations` and `Sprite`, `Particles`, `SaveFile`, `GameLoop`, `GameCanvas`, `Sound`, `Tune` and `Mixer`, `Keyboard` and `Controls`, `SceneStack`, `FullScreen`.
 
-Comments of the form `// --8<-- [start:name]` mark the excerpts the [Game Developer's Handbook](https://datazuul.github.io/amade-game-engine/) quotes; chapter 30 is about this game.
+Comments of the form `// --8<-- [start:name]` mark the excerpts the [Game Developer's Handbook](https://docs.amadeos.eu/amade-game-engine/) quotes; chapter 30 is about this game.
 
 ## Licence
 
