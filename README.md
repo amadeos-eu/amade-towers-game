@@ -5,6 +5,8 @@
 ![License](https://img.shields.io/badge/license-EUPL--1.2-blue)
 ![Java](https://img.shields.io/badge/Java-25-orange)
 
+![Towers](docs/screenshots/amade-towers-game.png)
+
 ## Playing
 
 - A click, **Space** or **Enter** leads from the title to the choice of a battlefield. Click one, or choose with **left** and **right** and play with **Space** or **Enter**. A battlefield opens when the one before it is won.
